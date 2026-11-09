@@ -405,3 +405,25 @@ Critérios de Aceitação:
 - E a barra de progresso da aula deve mostrar o trecho já assistido
 </user_story>
 ```
+
+## Iterações
+
+Cada iteração foi publicada no Hub (`rafaeldaddio/bug_to_user_story_v2`) e avaliada com `python src/evaluate.py`, usando `gpt-4.1-mini` para gerar as respostas e `gpt-4.1` como avaliador, ambos com `temperature=0`.
+
+| Iteração | Commit no Hub | Helpfulness | Correctness | F1-Score | Clarity | Precision | Resultado |
+|---|---|---|---|---|---|---|---|
+| 1 | `f91bb71a` | 0.86 | 0.88 | 0.86 | 0.82 | 0.89 | Aprovado |
+
+### Iteração 1
+
+Experimento: `rafaeldaddio-bug_to_user_story_v2-facc089a`. Médias por complexidade do relato:
+
+| Complexidade | F1-Score | Clarity | Precision |
+|---|---|---|---|
+| Simples (exemplos 1 a 5) | 0.95 | 0.89 | 0.96 |
+| Média (exemplos 6 a 12) | 0.79 | 0.83 | 0.86 |
+| Complexa (exemplos 13 a 15) | 0.88 | 0.70 | 0.86 |
+
+- **Simples:** respostas próximas das referências; as poucas perdas vêm de critérios complementares que a referência inclui e a resposta não (por exemplo, atualização em tempo real no exemplo 4).
+- **Médios:** os avaliadores apontam omissões em relação às referências, que trazem seções complementares (critérios técnicos, de acessibilidade, de prevenção, exemplo de cálculo). No exemplo 7, o modelo usou o limite de timeout do relato (120 segundos) como meta de desempenho.
+- **Complexos:** todos os problemas de cada relato foram cobertos, mas a Clarity ficou em 0.70 nos três: os grupos de critérios não têm título por problema, e os avaliadores apontam extensão e repetição entre critérios e contexto.
