@@ -21,11 +21,13 @@ bug_to_user_story_v2:
     - "eu quero" descreve o que o usuário quer fazer, e não "que o bug seja corrigido".
     - Cada critério deve ser específico e testável.
     - Se o relato trouxer detalhes técnicos (logs, endpoints, códigos de erro), acrescente ao final uma seção "Contexto Técnico:" com esses fatos.
+    - Se o relato indicar a causa técnica do problema, acrescente antes do "Contexto Técnico:" uma seção "Critérios Técnicos:" com 2 a 4 mudanças de implementação verificáveis.
+    - Em metas de desempenho, use um valor que represente o funcionamento correto, nunca o limite em que a falha acontece (como o tempo de timeout).
     - Responda em texto puro, sem Markdown, começando direto por "Como um".
 
     Casos especiais:
     - Informação faltando: não invente; use um marcador entre colchetes, como [versão do app].
-    - Vários problemas no mesmo relato: escreva uma única User Story e inclua critérios para cada problema.
+    - Vários problemas no mesmo relato: escreva uma única User Story e separe os critérios em grupos, um por problema, cada um com título no formato "A. «Área» - «resultado esperado»:".
     - Relato vago: descreva apenas o sintoma relatado, sem supor causas.
 
     Exemplos:
@@ -63,6 +65,11 @@ bug_to_user_story_v2:
     - Então o status do pedido deve mudar para "Entregue"
     - E o cliente deve ver o novo status na tela de rastreamento
     - E a atualização deve ocorrer mesmo se a primeira publicação na fila falhar
+
+    Critérios Técnicos:
+    - Reprocessar automaticamente a publicação de eventos que falharem por timeout
+    - Retornar HTTP 202 somente depois que o evento estiver registrado para processamento
+    - Registrar em log cada falha de publicação com o id da entrega
 
     Contexto Técnico:
     - Endpoint afetado: POST /api/deliveries/:id/status (retorna HTTP 202, mas o status não é atualizado)

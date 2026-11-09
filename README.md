@@ -384,11 +384,13 @@ Critérios de Aceitação:
 - E «complemento verificável»
 ```
 
+Regras complementam o esqueleto com partes condicionais: as seções "Critérios Técnicos:" e "Contexto Técnico:" quando o relato traz a causa ou detalhes técnicos, e grupos de critérios com título por problema quando o relato traz vários problemas.
+
 ### 3. Few-shot Learning
 
 **Por quê:** para um modelo de menor porte (`gpt-4.1-mini`), exemplos comunicam formato e nível de detalhe melhor do que instruções, e o formato esperado é rígido.
 
-**Como foi aplicado:** dois exemplos originais, em domínios que não aparecem no dataset, para o modelo não copiar conteúdo: um relato curto e um relato com detalhes técnicos, que demonstra a seção "Contexto Técnico:". Exemplo do relato curto:
+**Como foi aplicado:** dois exemplos originais, em domínios que não aparecem no dataset, para o modelo não copiar conteúdo: um relato curto e um relato com detalhes técnicos, que demonstra as seções "Critérios Técnicos:" e "Contexto Técnico:". Exemplo do relato curto:
 
 ```
 <relato>
@@ -413,6 +415,7 @@ Cada iteração foi publicada no Hub (`rafaeldaddio/bug_to_user_story_v2`) e ava
 | Iteração | Commit no Hub | Helpfulness | Correctness | F1-Score | Clarity | Precision | Resultado |
 |---|---|---|---|---|---|---|---|
 | 1 | `f91bb71a` | 0.86 | 0.88 | 0.86 | 0.82 | 0.89 | Aprovado |
+| 2 | `2bdc1825` | 0.89 | 0.90 | 0.89 | 0.86 | 0.91 | Aprovado |
 
 ### Iteração 1
 
@@ -427,3 +430,23 @@ Experimento: `rafaeldaddio-bug_to_user_story_v2-facc089a`. Médias por complexid
 - **Simples:** respostas próximas das referências; as poucas perdas vêm de critérios complementares que a referência inclui e a resposta não (por exemplo, atualização em tempo real no exemplo 4).
 - **Médios:** os avaliadores apontam omissões em relação às referências, que trazem seções complementares (critérios técnicos, de acessibilidade, de prevenção, exemplo de cálculo). No exemplo 7, o modelo usou o limite de timeout do relato (120 segundos) como meta de desempenho.
 - **Complexos:** todos os problemas de cada relato foram cobertos, mas a Clarity ficou em 0.70 nos três: os grupos de critérios não têm título por problema, e os avaliadores apontam extensão e repetição entre critérios e contexto.
+
+### Iteração 2
+
+Mudanças no prompt, motivadas pelos comentários dos avaliadores na iteração 1:
+
+- relatos com vários problemas: critérios separados em grupos com título por problema (`A. «Área» - «resultado esperado»:`);
+- relatos que indicam a causa técnica: nova seção "Critérios Técnicos:", também demonstrada no exemplo com detalhes técnicos;
+- metas de desempenho devem representar o funcionamento correto, e não o limite em que a falha acontece.
+
+Experimento: `rafaeldaddio-bug_to_user_story_v2-755494bc`. Médias por complexidade (iteração 1 → iteração 2):
+
+| Complexidade | F1-Score | Clarity | Precision |
+|---|---|---|---|
+| Simples (exemplos 1 a 5) | 0.95 → 0.92 | 0.89 → 0.92 | 0.96 → 0.96 |
+| Média (exemplos 6 a 12) | 0.79 → 0.86 | 0.83 → 0.83 | 0.86 → 0.90 |
+| Complexa (exemplos 13 a 15) | 0.88 → 0.90 | 0.70 → 0.83 | 0.86 → 0.85 |
+
+- **Complexos:** os três passaram a ter grupos com título, e a Clarity subiu de 0.70 para 0.83.
+- **Médios:** a seção "Critérios Técnicos:" apareceu nos exemplos 7, 10 e 12, justamente os que mais melhoraram (no 7, o F1 foi de 0.70 para 1.00, já com uma meta de desempenho adequada). As quedas ficaram nos exemplos 9 e 11, onde nenhuma seção nova apareceu: no 9, a resposta perdeu o contexto com os valores do cálculo; no 11, priorizou impedir a adição ao carrinho e omitiu a validação de estoque no checkout.
+- **Simples:** nenhuma regra nova se aplica a eles, e ainda assim as notas variaram até 0.11 por exemplo e até 0.03 na média do grupo. Essa é a ordem de grandeza da variação entre execuções, causada pela mudança no prompt e pelo próprio avaliador.
