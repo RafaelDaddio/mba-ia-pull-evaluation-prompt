@@ -352,3 +352,56 @@ Rode uma vez e guarde o endereço: ao compartilhar de novo, o link muda.
 - Não altere os datasets de avaliação - apenas os prompts em prompts/bug_to_user_story_v2.yml
 - Itere, itere, itere - é normal precisar de 3-5 iterações para atingir 0.8 em todas as métricas
 - Documente seu processo - a jornada de otimização é tão importante quanto o resultado final
+
+---
+
+## Técnicas Aplicadas (Fase 2)
+
+Os avaliadores (`src/metrics.py`) comparam a resposta gerada com a referência do dataset, escrita no padrão "Como um..., eu quero..., para que..." com critérios de aceitação Dado / Quando / Então / E. As técnicas foram escolhidas para reproduzir esse padrão com fidelidade ao relato. 
+
+### 1. Role Prompting
+
+**Por quê:** a persona de Product Manager orienta a resposta para o usuário afetado e o valor de negócio, em vez da correção técnica, e dá o tom de uma User Story de backlog.
+
+**Como foi aplicado:**
+
+> Você é um Product Manager sênior, especialista em métodos ágeis. Sua tarefa é transformar relatos de bugs em User Stories claras e testáveis, escritas em português do Brasil.
+
+### 2. Skeleton of Thought
+
+**Por quê:** fixar o esqueleto da resposta garante as seções certas, na ordem certa. A técnica foi preferida ao Chain of Thought porque a resposta é avaliada sem pós-processamento: qualquer raciocínio escrito seria penalizado pela Precision e pela Clarity.
+
+**Como foi aplicado:** o prompt traz o esqueleto da resposta, com as partes a preencher entre « »:
+
+```
+Como um «persona específica», eu quero «capacidade desejada», para que «benefício concreto».
+
+Critérios de Aceitação:
+- Dado que «contexto inicial»
+- Quando «ação ou evento»
+- Então «resultado esperado»
+- E «complemento verificável»
+- E «complemento verificável»
+```
+
+### 3. Few-shot Learning
+
+**Por quê:** para um modelo de menor porte (`gpt-4.1-mini`), exemplos comunicam formato e nível de detalhe melhor do que instruções, e o formato esperado é rígido.
+
+**Como foi aplicado:** dois exemplos originais, em domínios que não aparecem no dataset, para o modelo não copiar conteúdo: um relato curto e um relato com detalhes técnicos, que demonstra a seção "Contexto Técnico:". Exemplo do relato curto:
+
+```
+<relato>
+Na plataforma de cursos, o vídeo da aula sempre recomeça do início, mesmo quando o aluno já assistiu parte dela.
+</relato>
+<user_story>
+Como um aluno assistindo às aulas de um curso online, eu quero que o vídeo retome do ponto em que parei, para que eu possa continuar os estudos sem procurar onde estava.
+
+Critérios de Aceitação:
+- Dado que assisti parte de uma videoaula
+- Quando volto para a mesma aula
+- Então o vídeo deve continuar do ponto em que parei
+- E o progresso deve ser salvo automaticamente durante a reprodução
+- E a barra de progresso da aula deve mostrar o trecho já assistido
+</user_story>
+```
